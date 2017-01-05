@@ -25,27 +25,28 @@ class DatabaseUpdated(FileSystemEventHandler):
 
     def __init__(self, _db_path):
         self.db_path = _db_path
-        self.last_message = ""
+        self.last_timestamp = int(time.time())
 
     def on_modified(self, event):
-        new_message = self.get_lastest_message()
-        if new_message == self.last_message:
-            return
-        print(new_message)
-        self.last_message = new_message
+        self.print_new_messages()
 
-    def get_lastest_message(self):
-        cmd = "SELECT chatname,timestamp,author,from_dispname,body_xml FROM Messages ORDER BY id DESC"
+    def print_new_messages(self):
+        cmd = "SELECT chatname,timestamp,author,from_dispname,body_xml FROM Messages WHERE timestamp > {0} ORDER BY id".format(
+            self.last_timestamp)
         conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
         c.execute(cmd)
-        chatname, timestamp, author, from_dispname, body_xml = c.fetchone()
-        displayname = self.get_displayname_of_chatname(chatname)
-        displayname = "{0}{1}{2}".format(fg(9), displayname, attr('reset'))
-        from_dispname = "{0}{1}{2}".format(
-            fg(10), from_dispname, attr('reset'))
-        body_xml = "{0}{1}{2}".format(fg(11), body_xml, attr('reset'))
-        return "{0} / {1} / {2}".format(displayname, from_dispname, body_xml)
+        messages = c.fetchall()
+
+        for msg in messages:
+            chatname, timestamp, author, from_dispname, body_xml = msg
+            self.last_timestamp = timestamp
+            displayname = self.get_displayname_of_chatname(chatname)
+            displayname = "{0}{1}{2}".format(fg(9), displayname, attr('reset'))
+            from_dispname = "{0}{1}{2}".format(
+                fg(10), from_dispname, attr('reset'))
+            body_xml = "{0}{1}{2}".format(fg(11), body_xml, attr('reset'))
+            print("{0} / {1} / {2}".format(displayname, from_dispname, body_xml))
 
     def get_displayname_of_chatname(self, chatname):
         cmd = "SELECT displayname FROM Conversations WHERE identity='{0}'".format(
