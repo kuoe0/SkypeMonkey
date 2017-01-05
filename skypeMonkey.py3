@@ -57,14 +57,18 @@ class DatabaseUpdated(FileSystemEventHandler):
         return displayname
 
 if __name__ == "__main__":
-    db_path = sys.argv[1]
-    event_handler = DatabaseUpdated(db_path)
-    observer = Observer()
-    observer.schedule(event_handler, os.path.dirname(db_path), recursive=True)
-    observer.start()
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        observer.stop()
-    observer.join()
+    if len(sys.argv) != 2:
+        print("Usage: skypeMonkey.py3 [path of Skype database])")
+    else:
+        db_path = sys.argv[1]
+        event_handler = DatabaseUpdated(db_path)
+        observer = Observer()
+        observer.schedule(event_handler, os.path.dirname(
+            db_path), recursive=True)
+        observer.start()
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            observer.stop()
+        observer.join()
