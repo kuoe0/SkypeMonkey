@@ -31,7 +31,7 @@ class DatabaseUpdated(FileSystemEventHandler):
         self.print_new_messages()
 
     def print_new_messages(self):
-        cmd = "SELECT chatname,timestamp,author,from_dispname,body_xml FROM Messages WHERE timestamp > {0} ORDER BY id".format(
+        cmd = "SELECT convo_id,timestamp,author,from_dispname,body_xml FROM Messages WHERE timestamp > {0} ORDER BY id".format(
             self.last_timestamp)
         conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
@@ -39,18 +39,18 @@ class DatabaseUpdated(FileSystemEventHandler):
         messages = c.fetchall()
 
         for msg in messages:
-            chatname, timestamp, author, from_dispname, body_xml = msg
+            convo_id, timestamp, author, from_dispname, body_xml = msg
             self.last_timestamp = timestamp
-            displayname = self.get_displayname_of_chatname(chatname)
+            displayname = self.get_conversation_name(convo_id)
             displayname = "{0}{1}{2}".format(fg(9), displayname, attr('reset'))
             from_dispname = "{0}{1}{2}".format(
                 fg(10), from_dispname, attr('reset'))
             body_xml = "{0}{1}{2}".format(fg(11), body_xml, attr('reset'))
             print("{0} / {1} / {2}".format(displayname, from_dispname, body_xml))
 
-    def get_displayname_of_chatname(self, chatname):
-        cmd = "SELECT displayname FROM Conversations WHERE identity='{0}'".format(
-            chatname)
+    def get_conversation_name(self, convo_id):
+        cmd = "SELECT displayname FROM Conversations WHERE id={0}".format(
+            convo_id)
         conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
         c.execute(cmd)
