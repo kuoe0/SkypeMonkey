@@ -46,7 +46,8 @@ class DatabaseUpdated(FileSystemEventHandler):
             from_dispname = "{0}{1}{2}".format(
                 fg(10), from_dispname, attr('reset'))
             body_xml = "{0}{1}{2}".format(fg(11), body_xml, attr('reset'))
-            print("{0} / {1} / {2}".format(displayname, from_dispname, body_xml))
+            print("{0} / {1}".format(displayname, from_dispname))
+            print("{0}".format(body_xml))
 
     def get_conversation_name(self, convo_id):
         cmd = "SELECT displayname FROM Conversations WHERE id={0}".format(
