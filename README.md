@@ -1,10 +1,11 @@
 SkypeMonkey
 ===========
 
-## Skype database location
+Support on **macOS** only.
 
-macOS:
+## Usage
+
 
 ```
-/Users/{system username}/Library/Application Support/Skype/{skype username}/main.db
+$ skypeMonkey.py3 <skype username>
 ```
