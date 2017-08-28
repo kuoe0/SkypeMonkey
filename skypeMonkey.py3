@@ -12,12 +12,10 @@
 """
 
 """
-import sys
 import sqlite3
 import os.path
 import time
 import getpass
-from colored import fg, attr
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -32,6 +30,7 @@ class DatabaseUpdated(FileSystemEventHandler):
         self.print_new_messages()
 
     def print_new_messages(self):
+        from colored import fg, attr
         cmd = "SELECT convo_id,timestamp,author,from_dispname,body_xml FROM Messages WHERE timestamp > {0} ORDER BY id".format(
             self.last_timestamp)
         conn = sqlite3.connect(self.db_path)
@@ -59,20 +58,21 @@ class DatabaseUpdated(FileSystemEventHandler):
         return displayname
 
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: skypeMonkey.py3 [username])")
-    else:
-        db_path_template = "/Users/{0}/Library/Application Support/Skype/{1}/main.db"
-        db_path = db_path_template.format(getpass.getuser(), sys.argv[1])
-        event_handler = DatabaseUpdated(db_path)
-        observer = Observer()
-        observer.schedule(event_handler, os.path.dirname(
-            db_path), recursive=True)
-        observer.start()
-        try:
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            observer.stop()
-        observer.join()
+def skypeMonkey(username):
+
+    db_path_template = "/Users/{0}/Library/Application Support/Skype/{1}/main.db"
+    db_path = db_path_template.format(getpass.getuser(), username)
+    event_handler = DatabaseUpdated(db_path)
+    observer = Observer()
+    observer.schedule(event_handler, os.path.dirname(
+        db_path), recursive=True)
+    observer.start()
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+    observer.join()
+
+
+import clime.now
